@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kinshift · Family care, shared fairly</title>
+  <meta name="description" content="An AI care coordinator and shared PayPal care pool for siblings caring for an aging parent.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23D9643A'/%3E%3Cpath d='M32 47s-14-8.6-14-19a8 8 0 0 1 14-5.3A8 8 0 0 1 46 28c0 10.4-14 19-14 19z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/bryntum/calendar.css">
+  <link rel="stylesheet" href="/bryntum/stockholm-light.css">
+  <link rel="stylesheet" href="/bryntum/fontawesome/css/fontawesome.css">
+  <link rel="stylesheet" href="/bryntum/fontawesome/css/solid.css">
+  <link rel="stylesheet" href="/bryntum/fontawesome/css/brands.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><i class="fa fa-heart"></i></div>
+      <div>
+        <div class="brand-name">Kinshift</div>
+        <div class="brand-sub" id="familyLine">Loading…</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="status-dots">
+        <span id="paypalBadge"></span>
+        <span id="aiBadge"></span>
+      </div>
+      <label class="viewer" title="Switch who is using the app">
+        <span class="avatar" id="viewerAvatar">A</span>
+        <select id="viewer" aria-label="Viewing as"></select>
+      </label>
+      <button class="btn ghost only-mobile" id="openChat"><i class="fa fa-comment-dots"></i> Ask Kin</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main class="main">
+      <section id="alert" class="alert" aria-live="polite"></section>
+
+      <nav class="tabs" id="tabs" role="tablist">
+        <button role="tab" data-tab="schedule" class="active"><i class="fa fa-calendar-days"></i> Schedule</button>
+        <button role="tab" data-tab="money" data-family><i class="fa fa-wallet"></i> Money <span class="count" id="approvalCount" hidden></span></button>
+        <button role="tab" data-tab="updates"><i class="fa fa-heart-pulse"></i> Updates</button>
+      </nav>
+
+      <!-- Schedule -->
+      <section class="panel active" data-panel="schedule">
+        <div class="view-bar">
+          <div class="seg" role="group" aria-label="Schedule view">
+            <button class="active" data-view="calendar"><i class="fa fa-calendar-week"></i> Calendar</button>
+            <button data-view="timeline"><i class="fa fa-bars-staggered"></i> Team</button>
+          </div>
+          <div class="legend">
+            <span><i class="sw sw-open"></i>Needs cover</span>
+            <span><i class="sw sw-wait"></i>Waiting for pay</span>
+            <span><i class="sw sw-done"></i>Done</span>
+          </div>
+        </div>
+        <div id="calendar" class="calendar-host"></div>
+        <div id="timeline" class="calendar-host" hidden></div>
+      </section>
+
+      <!-- Money -->
+      <section class="panel" data-panel="money">
+        <div class="grid two">
+          <div class="card pool-card">
+            <div class="eyebrow">Family care pool</div>
+            <div class="pool-balance" id="poolBalance">$0</div>
+            <div class="pool-meter"><span id="poolMeter"></span></div>
+            <p class="muted small" id="poolLine"></p>
+            <div class="add-money">
+              <div class="form-row">
+                <label>Who is paying <select id="payFrom"></select></label>
+                <label>Amount <span class="money-input">$<input id="payAmount" type="number" min="1" step="1" value="200"></span></label>
+              </div>
+              <div id="paypalButtons" class="paypal-host"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Waiting for your OK</h3>
+              <span class="hint-chip"><i class="fa fa-shield-heart"></i> Kin never moves money alone</span>
+            </div>
+            <div id="approvals"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Fair share</h3>
+            <button class="btn ghost small" data-ask="Is everyone paying their fair share? If someone is behind, suggest a fair top-up for the coming week."><i class="fa fa-wand-magic-sparkles"></i> Ask Kin to balance it</button>
+          </div>
+          <p class="muted small" id="fairIntro"></p>
+          <div id="fairTable"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Recent PayPal activity</h3>
+            <button class="btn ghost small" id="syncBtn"><i class="fa fa-rotate"></i> Refresh</button></div>
+          <div id="moneyFeed"></div>
+          <details class="more">
+            <summary>Request money from a sibling yourself</summary>
+            <div class="form-row">
+              <label>Sibling <select id="reqSibling"></select></label>
+              <label>Amount <span class="money-input">$<input id="reqAmount" type="number" min="1" step="1" value="300"></span></label>
+            </div>
+            <input id="reqReason" class="text" placeholder="Note, e.g. “Your share of Mom’s care for next week”">
+            <button class="btn" id="sendRequest"><i class="fa-brands fa-paypal"></i> Send PayPal request</button>
+          </details>
+        </div>
+      </section>
+
+      <!-- Updates -->
+      <section class="panel" data-panel="updates">
+        <div class="grid two">
+          <div class="card highlight">
+            <div class="eyebrow"><i class="fa fa-wand-magic-sparkles"></i> Written by Kin</div>
+            <h3>This week with Mom</h3>
+            <div id="summary" class="summary muted">Kin reads this week’s caregiver notes and writes a short update for the family.</div>
+            <button class="btn" id="summarize"><i class="fa fa-pen-nib"></i> Write this week’s update</button>
+          </div>
+          <div class="card"><h3>Caregiver notes</h3><div id="notes"></div></div>
+        </div>
+        <details class="card more-card">
+          <summary><i class="fa fa-clock-rotate-left"></i> Everything that happened</summary>
+          <div id="activity"></div>
+          <button class="btn ghost small mt" id="resetDemo"><i class="fa fa-rotate-left"></i> Reset demo data</button>
+        </details>
+      </section>
+    </main>
+
+    <aside class="chat" id="chat" aria-label="Kin care agent">
+      <div class="chat-head">
+        <div class="kin-avatar"><i class="fa fa-hand-holding-heart"></i></div>
+        <div>
+          <div class="chat-title">Kin</div>
+          <div class="chat-sub"><span class="live-dot"></span> Your family’s care coordinator</div>
+        </div>
+        <button class="icon-btn only-mobile" id="closeChat" aria-label="Close"><i class="fa fa-xmark"></i></button>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chips" id="chips"></div>
+      <form class="chat-input" id="chatForm">
+        <textarea id="chatText" rows="1" placeholder="Tell Kin what changed…"></textarea>
+        <button class="btn send" type="submit" aria-label="Send"><i class="fa fa-arrow-up"></i></button>
+      </form>
+    </aside>
+  </div>
+
+  <div class="modal-backdrop" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="icon-btn modal-x" data-close aria-label="Close"><i class="fa fa-xmark"></i></button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+  <div class="toasts" id="toasts"></div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
