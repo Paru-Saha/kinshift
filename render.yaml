@@ -5,12 +5,15 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: npm start
+    healthCheckPath: /api/state
     envVars:
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET
         sync: false
       - key: GEMINI_API_KEY
+        sync: false
+      - key: SANDBOX_PERSONAL_EMAIL
         sync: false
       - key: FAMILY_TZ
         value: America/New_York
