@@ -647,7 +647,7 @@ document.addEventListener('click', async (ev) => {
   }
   if (t.id === 'syncBtn') {
     t.disabled = true;
-    try { const r = await api('/api/sync', {}); toast(r.changes.length ? r.changes.join(', ') : 'Everything is up to date'); await load(); } catch (e) { toast(e.message, 'error'); }
+    try { const r = await api('/api/sync', {}); toast(r.changes.length ? `PayPal confirmed ${r.changes.length} update${r.changes.length > 1 ? 's' : ''}` : 'Everything is up to date'); await load(); } catch (e) { toast(e.message, 'error'); }
     t.disabled = false;
   }
 });
