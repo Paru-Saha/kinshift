@@ -12,6 +12,8 @@ When parents need daily care, adult children end up running a small business wit
 
 > Built for the PayPal AI Hackathon 2026.
 
+**▶ Live demo: [kinshift-pd4a.onrender.com](https://kinshift-pd4a.onrender.com)** (free hosting: the first visit can take about a minute to wake up). Everything runs in the PayPal **sandbox**, so no real money moves.
+
 ---
 
 ## How it works
